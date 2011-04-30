@@ -25,7 +25,7 @@ static CGFloat topMenuHeight = 22;
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
   [self activateStatusMenu];
   lastVisibleFrame = [[NSScreen mainScreen] visibleFrame];
-//  [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(recalculate:) userInfo:nil repeats:YES];
+//  [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(recalculate:) userInfo:nil repeats:YES];
   [NSEvent addGlobalMonitorForEventsMatchingMask:NSLeftMouseDragged handler:^(NSEvent *event) { [self recalculate:event];
   }];
 }
@@ -115,7 +115,7 @@ static CGFloat topMenuHeight = 22;
   CFArrayRef windows = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements, kCGNullWindowID);
   for (NSDictionary *w in (NSArray*)windows) {
     NSString *owner = [w objectForKey:@"kCGWindowOwnerName"];
-    if ([[w objectForKey:@"kCGWindowLayer"] integerValue] == 25 ||
+    if ([[w objectForKey:@"kCGWindowLayer"] integerValue] > 3 ||
         [owner isEqualToString:@"Dock"] ||
         [owner isEqualToString:@"SystemUIServer"] ||
         [owner isEqualToString:@"Window Server"]) {
