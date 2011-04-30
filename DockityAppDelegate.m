@@ -33,7 +33,7 @@ static CGFloat topMenuHeight = 22;
 - (void)activateStatusMenu
 {
   NSMenu *menu = [[NSMenu alloc] init];
-  NSMenuItem *refreshItem = [[NSMenuItem alloc] initWithTitle:@"Refresh" action:@selector(refresh:) keyEquivalent:@""];
+  NSMenuItem *refreshItem = [[NSMenuItem alloc] initWithTitle:@"Refresh" action:@selector(recalculate:) keyEquivalent:@""];
   [menu addItem:refreshItem];
   [refreshItem release];
   NSMenuItem *quitItem = [[NSMenuItem alloc] initWithTitle:@"Quit Dockity" action:@selector(terminate:) keyEquivalent:@""];
