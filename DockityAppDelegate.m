@@ -60,6 +60,13 @@ static CGFloat topMenuHeight = 22;
   return NO; // should not happen
 }
 
+- (BOOL)isOutOfSightWindowRect:(NSRect)winRect {
+  //TODO(dchest): detect more edges.
+  NSRect screenFrame = [[NSScreen mainScreen] frame];
+  return winRect.origin.x < screenFrame.origin.x ||
+         winRect.origin.y < screenFrame.origin.y;
+}
+
 
 - (void)updateLastDockPos {
   NSRect screenFrame = [[NSScreen mainScreen] frame];
@@ -110,7 +117,8 @@ static CGFloat topMenuHeight = 22;
 //  long currentAppPID = [self currentAppPID];
   
   [self updateLastDockPos];
-
+  int numOutOfSight = 0;
+  int numTotal = 0;
 
   CFArrayRef windows = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements, kCGNullWindowID);
   for (NSDictionary *w in (NSArray*)windows) {
@@ -121,12 +129,16 @@ static CGFloat topMenuHeight = 22;
         [owner isEqualToString:@"Window Server"]) {
       continue;
     }
+    numTotal++;
     NSDictionary *bounds = [w objectForKey:@"kCGWindowBounds"];
     
     NSRect winRect = NSMakeRect([[bounds objectForKey:@"X"] floatValue], [[bounds objectForKey:@"Y"] floatValue], [[bounds objectForKey:@"Width"] floatValue], [[bounds objectForKey:@"Height"] floatValue]);
 
     if (!shouldHideDock) {
-      shouldHideDock = [self shouldHideDockForWindowRect:winRect];      
+      shouldHideDock = [self shouldHideDockForWindowRect:winRect];
+    }
+    if ([self isOutOfSightWindowRect:winRect]) {
+      numOutOfSight++;
     }
     
 #if 0
@@ -140,13 +152,15 @@ static CGFloat topMenuHeight = 22;
       NSLog(@"Should fill screen: %d", shouldFillScreen);
     }
 #endif
-    if (shouldHideDock) {
-      break;
-    }
   }
   CFRelease(windows);
   
   if ([self isDockHidden] == shouldHideDock) {
+    return;
+  }
+  // Heuristics to detect Exposé "show desktop".
+  // At least half of windows must be out of sight.
+  if (numOutOfSight >= numTotal/2) {
     return;
   }
   
